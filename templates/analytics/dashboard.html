@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Gromaster{% endblock %}{% block page_name %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><div class="eyebrow">OVERVIEW</div><h1>Good to see you.</h1><p>Here’s what’s happening across your grocery inventory today.</p></div>
+  <div class="heading-actions"><a class="btn btn-soft" href="{% url 'catalog:product_create' %}"><i class="bi bi-plus-lg"></i> Add product</a><a class="btn btn-primary-app" href="{% url 'inventory:bulk_update' %}"><i class="bi bi-arrow-left-right"></i> Update stock</a></div>
+</section>
+<section class="metric-grid">
+  <article class="metric-card"><div class="metric-top"><span class="metric-icon icon-blue"><i class="bi bi-box-seam"></i></span><span class="metric-kicker">CATALOG</span></div><div class="metric-value">{{ product_count }}</div><div class="metric-label">Active products</div><div class="metric-foot">Across your active catalog</div></article>
+  <a class="metric-card metric-warning text-decoration-none" href="{% url 'inventory:list' %}?status=Low%20Stock"><div class="metric-top"><span class="metric-icon icon-amber"><i class="bi bi-exclamation-circle"></i></span><span class="metric-kicker">NEEDS ATTENTION</span></div><div class="metric-value">{{ low_count }}</div><div class="metric-label">Low stock</div><div class="metric-foot">View products at their minimum level</div></a>
+  <a class="metric-card metric-danger text-decoration-none" href="{% url 'inventory:list' %}?status=Out%20of%20Stock"><div class="metric-top"><span class="metric-icon icon-red"><i class="bi bi-x-octagon"></i></span><span class="metric-kicker">URGENT</span></div><div class="metric-value">{{ out_count }}</div><div class="metric-label">Out of stock</div><div class="metric-foot">View products needing replenishment</div></a>
+  <a class="metric-card text-decoration-none" href="{% url 'inventory:list' %}?status=Unused%20Stock"><div class="metric-top"><span class="metric-icon icon-violet"><i class="bi bi-hourglass-split"></i></span><span class="metric-kicker">CHECK USAGE</span></div><div class="metric-value">{{ unused_count }}</div><div class="metric-label">Unused stock</div><div class="metric-foot">No usage recorded in 30 days</div></a>
+</section>
+<section class="dashboard-grid">
+  <article class="panel activity-panel">
+    <div class="panel-heading"><div><h2>Recent stock activity</h2><p>Latest inventory changes recorded by your team</p></div><a class="text-link" href="{% url 'inventory:history' %}">View history <i class="bi bi-arrow-up-right"></i></a></div>
+    <div class="table-responsive"><table class="table app-table align-middle"><thead><tr><th>PRODUCT</th><th>ACTIVITY</th><th>CHANGE</th><th>UPDATED BY</th><th>DATE</th></tr></thead><tbody>
+    {% for m in recent_movements %}<tr><td><div class="product-cell"><span class="table-product-icon"><i class="bi bi-box"></i></span><span><strong>{{ m.product.name }}</strong><small>{{ m.product.sku }}</small></span></div></td><td>{{ m.get_movement_type_display }}</td><td><span class="change-value {% if m.difference < 0 %}negative{% else %}positive{% endif %}">{% if m.difference > 0 %}+{% endif %}{{ m.difference }} {{ m.product.unit }}</span></td><td>{{ m.created_by.email|default:"—" }}</td><td class="muted-cell">{{ m.created_at|date:"d M, H:i" }}</td></tr>
+    {% empty %}<tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><strong>No activity yet</strong><span>Stock changes will appear here when recorded.</span></div></td></tr>{% endfor %}
+    </tbody></table></div>
+  </article>
+  <aside class="panel quick-panel"><div class="panel-heading"><div><h2>Quick actions</h2><p>Common inventory tasks</p></div></div>
+    <a class="quick-action" href="{% url 'inventory:bulk_update' %}"><span class="quick-icon quick-green"><i class="bi bi-clipboard-check"></i></span><span><strong>Update stock count</strong><small>Enter physical quantities in bulk</small></span><i class="bi bi-chevron-right"></i></a>
+    <a class="quick-action" href="{% url 'inventory:consume' %}"><span class="quick-icon quick-orange"><i class="bi bi-cart-dash"></i></span><span><strong>Record usage</strong><small>Log issued or consumed groceries</small></span><i class="bi bi-chevron-right"></i></a>
+    <a class="quick-action" href="{% url 'catalog:product_create' %}"><span class="quick-icon quick-blue"><i class="bi bi-plus-square"></i></span><span><strong>Add a product</strong><small>Expand your grocery catalog</small></span><i class="bi bi-chevron-right"></i></a>
+    <a class="quick-action" href="{% url 'inventory:history' %}"><span class="quick-icon quick-red"><i class="bi bi-clock-history"></i></span><span><strong>View stock history</strong><small>See who changed quantities and when</small></span><i class="bi bi-chevron-right"></i></a>
+  </aside>
+</section>
+{% endblock %}

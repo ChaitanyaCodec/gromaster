@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Bulk import products | Gromaster{% endblock %}
+{% block content %}
+<div class="content-heading">
+  <div><div class="eyebrow">BULK CATALOG SETUP</div><h1>Import products from Excel</h1><p>Add many grocery items at once, grouped by their existing category.</p></div>
+  <a class="btn btn-soft" href="{% url 'catalog:products' %}"><i class="bi bi-arrow-left me-1"></i> Back to products</a>
+</div>
+<div class="form-panel">
+  <div class="stock-note"><strong><i class="bi bi-file-earmark-spreadsheet me-2"></i>How it works</strong><br>
+    Download the Excel template, add one item per row, and upload it. If a category does not exist, Gromaster creates it automatically. Existing categories are matched without case, spacing or punctuation differences. Gromaster generates each SKU from the category prefix. For example, Grains with prefix <strong>GR</strong> generates <strong>GR-003</strong> after GR-001 and GR-002.
+  </div>
+  <p class="small text-secondary mb-2">Required columns: Category, Item Name, Unit, Opening Quantity, Minimum Quantity, Description.</p>
+  <a class="btn btn-soft mb-4" href="{% url 'catalog:product_import_template' %}"><i class="bi bi-download me-1"></i> Download Excel template</a>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3"><label class="form-label" for="excel_file">Excel workbook (.xlsx)</label><input class="form-control" type="file" name="excel_file" id="excel_file" accept=".xlsx" required></div>
+    <div class="d-flex justify-content-end gap-2"><a class="btn btn-soft" href="{% url 'catalog:products' %}">Cancel</a><button class="btn btn-primary-app" type="submit"><i class="bi bi-upload me-1"></i> Import products</button></div>
+  </form>
+  <hr class="my-4">
+  <h2 class="h6">Existing categories and SKU prefixes</h2>
+  <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Category</th><th>SKU prefix</th></tr></thead><tbody>
+  {% for c in categories %}<tr><td>{{ c.name }}</td><td><code>{{ c.sku_prefix }}</code></td></tr>{% empty %}<tr><td colspan="2" class="text-secondary">Categories missing from the workbook will be created automatically with a generated SKU prefix.</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% endblock %}
